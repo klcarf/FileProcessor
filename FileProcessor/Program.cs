@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Services;
+using Services.Exceptions;
 using Storage;
 using System.Reflection;
 
@@ -109,6 +110,12 @@ try
             PrintHelp();
             break;
     }
+}
+catch(FileProcessorException ex)
+{
+    Console.WriteLine($"Error [{ex.ErrorCode}]: {ex.Message}");
+    logger.Error($"Error [{ex.ErrorCode}]: {ex.Message}");
+
 }
 catch (Exception ex)
 {

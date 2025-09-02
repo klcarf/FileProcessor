@@ -1,6 +1,7 @@
 ﻿using FileProcessorUtil;
 using Metadata;
 using Models;
+using Services.Exceptions;
 using Storage;
 using System.Security.Cryptography;
 using log4net;
@@ -17,7 +18,7 @@ namespace Services
         {
             if (providers == null || providers.Count == 0)
             {
-                throw new Exception("Provider is required.");
+                throw new FileProcessorException(ErrorCodes.ProviderRequired, "Provider is required.");
             }
 
             _metadataContract = metadataContract;
@@ -58,7 +59,7 @@ namespace Services
             }
 
             if (!System.IO.File.Exists(filePath))
-                throw new Exception("File not found: " + filePath);
+                throw new FileProcessorException(ErrorCodes.FileNotFound, "File not found: " + filePath);
 
             return await createFile(filePath, null);
         }
@@ -180,7 +181,7 @@ namespace Services
             var chunks = (await _metadataContract.GetChunksAsync(fileId)).OrderBy(c => c.Index).ToList();
             if (chunks.Count != file.ChunkCount)
             {
-                throw new Exception("Chunk count not valid");
+                throw new FileProcessorException(ErrorCodes.ChunkCountMismatch, "Chunk count not valid");
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
@@ -192,13 +193,13 @@ namespace Services
             foreach (var chunk in chunks)
             {
                 var provider = _providers.FirstOrDefault(p => p.Name == chunk.Provider) ??
-                    throw new Exception("Provider not found: " + chunk.Provider);
+                    throw new FileProcessorException(ErrorCodes.ProviderNotFound, "Provider not found: " + chunk.Provider);
 
                 var data = await provider.GetChunkAsync(chunk.ProviderKey);
 
                 var currentChunkHash = Convert.ToHexString(SHA256.HashData(data));
                 if (!currentChunkHash.Equals(chunk.HashSha256, StringComparison.OrdinalIgnoreCase))
-                    throw new Exception("Chunk hash mismatch " + chunk.Index);
+                    throw new FileProcessorException(ErrorCodes.ChunkHashMismatch, "Chunk hash mismatch " + chunk.Index);
 
                 await outStream.WriteAsync(data);
                 fullHasher.AppendData(data);
@@ -206,7 +207,7 @@ namespace Services
 
             var currentFullHash = Convert.ToHexString(fullHasher.GetHashAndReset());
             if (!currentFullHash.Equals(file.HashSha256, StringComparison.OrdinalIgnoreCase))
-                throw new Exception("File hash mismatch.");
+                throw new FileProcessorException(ErrorCodes.FileHashMismatch, "File hash mismatch.");
         }
     }
 }
