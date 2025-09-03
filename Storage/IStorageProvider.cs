@@ -3,8 +3,8 @@
     public interface IStorageProvider
     {
         public string Name { get; set; }
-        Task AddChunkAsync(string key, byte[] data);
-        Task<byte[]> GetChunkAsync(string key);
-        Task DeleteChunkAsync(string key);
+        Task AddChunkAsync(string fileId, int chunkOrder, byte[] data);
+        Task<byte[]> GetChunkAsync(string fileId, int chunkOrder);
+        Task DeleteFileChunksAsync(string fileId);
     }
 }

@@ -1,8 +1,9 @@
 ﻿
-using FileProcessor;
 using log4net;
 using log4net.Config;
 using Metadata;
+using Metadata.ServiceContracts;
+using Metadata.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,7 @@ var providers = new List<IStorageProvider>
 };
 
 
-var service = new FileService(metadataContract, providers);
+var service = new FileProcessorService(metadataContract, providers);
 
 while (true)
 {

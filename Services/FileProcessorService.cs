@@ -1,20 +1,20 @@
 ﻿using FileProcessorUtil;
-using Metadata;
 using Models;
 using Services.Exceptions;
 using Storage;
 using System.Security.Cryptography;
 using log4net;
+using Metadata.ServiceContracts;
 
 namespace Services
 {
-    public class FileService
+    public class FileProcessorService
     {
         private readonly IMetadataContract _metadataContract;
         private readonly List<IStorageProvider> _providers;
-        private static readonly ILog _logger = LogManager.GetLogger(typeof(FileService));
+        private static readonly ILog _logger = LogManager.GetLogger(typeof(FileProcessorService));
 
-        public FileService(IMetadataContract metadataContract, List<IStorageProvider> providers)
+        public FileProcessorService(IMetadataContract metadataContract, List<IStorageProvider> providers)
         {
             if (providers == null || providers.Count == 0)
             {
@@ -119,7 +119,7 @@ namespace Services
                 providerPointer = (providerPointer + 1) % _providers.Count; // Todo
 
                 var providerKey = $"{fileId}/{chunkIndex}";
-                await provider.AddChunkAsync(providerKey, slice);
+                await provider.AddChunkAsync(fileId.ToString(), chunkIndex, slice);
 
                 var chunk = new Chunk
                 {
@@ -195,7 +195,7 @@ namespace Services
                 var provider = _providers.FirstOrDefault(p => p.Name == chunk.Provider) ??
                     throw new FileProcessorException(ErrorCodes.ProviderNotFound, "Provider not found: " + chunk.Provider);
 
-                var data = await provider.GetChunkAsync(chunk.ProviderKey);
+                var data = await provider.GetChunkAsync(fileId.ToString() ,chunk.Index);
 
                 var currentChunkHash = Convert.ToHexString(SHA256.HashData(data));
                 if (!currentChunkHash.Equals(chunk.HashSha256, StringComparison.OrdinalIgnoreCase))

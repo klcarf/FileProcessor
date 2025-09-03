@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Metadata.ServiceContracts;
+using Microsoft.EntityFrameworkCore;
 using Models;
 
-namespace Metadata
+namespace Metadata.Services
 {
     public class MetadataService : IMetadataContract, IDisposable
     {
