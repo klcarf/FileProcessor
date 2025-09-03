@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Metadata\Metadata.csproj" />
+		<ProjectReference Include="..\Metadata\DataAccess.csproj" />
 		<ProjectReference Include="..\Storage\Storage.csproj" />
 	</ItemGroup>
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Metadata.Migrations.DatabaseStorageDb
+namespace DataAccess.Migrations.DatabaseStorageDb
 {
     /// <inheritdoc />
     public partial class DatabaseStorageDbContext_v10 : Migration

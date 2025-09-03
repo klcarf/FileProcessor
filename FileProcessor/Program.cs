@@ -2,7 +2,7 @@
 using Application.Interfaces;
 using log4net;
 using log4net.Config;
-using Metadata;
+using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

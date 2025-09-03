@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Metadata.Migrations
+namespace DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class FileProcessDb_v10 : Migration

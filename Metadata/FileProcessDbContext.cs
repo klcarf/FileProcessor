@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Models;
 
-namespace Metadata
+namespace DataAccess
 {
     public class FileProcessDbContext : DbContext
     {
