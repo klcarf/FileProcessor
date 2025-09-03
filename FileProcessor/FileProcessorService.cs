@@ -1,9 +1,9 @@
-﻿using Models;
+﻿using Application.Interfaces;
+using log4net;
+using Models;
 using Services.Exceptions;
 using Storage;
 using System.Security.Cryptography;
-using log4net;
-using Application.Interfaces;
 
 namespace Application
 {
@@ -13,17 +13,17 @@ namespace Application
         private readonly List<IStorageProvider> _providers;
         private static readonly ILog _logger = LogManager.GetLogger(typeof(FileProcessorService));
 
-        public FileProcessorService(IMetadataContract metadataContract, List<IStorageProvider> providers)
+       
+        public FileProcessorService(IMetadataContract metadataContract, IEnumerable<IStorageProvider> providers)
         {
-            if (providers == null || providers.Count == 0)
+            if (providers == null || !providers.Any())
             {
                 throw new FileProcessorException(ErrorCodes.ProviderRequired, "Provider is required.");
             }
 
             _metadataContract = metadataContract;
-            _providers = providers;
+            _providers = providers.ToList();
         }
-
 
         public async Task<Guid> UploadAsync(string filePath)
         {
@@ -36,7 +36,7 @@ namespace Application
                     Id = Guid.NewGuid(),
                     RootPath = Path.GetFullPath(filePath),
                     RootName = Path.GetFileName(Path.GetFullPath(filePath)
-                                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+                                    .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
                     CreateDate = DateTime.UtcNow
                 };
 
@@ -45,7 +45,7 @@ namespace Application
                 int count = 0;
                 foreach (var file in Directory.EnumerateFiles(filePath, "*", SearchOption.AllDirectories))
                 {
-                    var id = await createFile(file, folder.Id);
+                    var id = await CreateFileAsync(file, folder.Id);
                     var rel = Path.GetRelativePath(filePath, file).Replace('\\', '/');
                     Console.WriteLine($"Uploaded: {rel}  |  FileId: {id}");
                     _logger.Info($"Uploaded: {rel}  |  FileId: {id}");
@@ -60,10 +60,10 @@ namespace Application
             if (!System.IO.File.Exists(filePath))
                 throw new FileProcessorException(ErrorCodes.FileNotFound, "File not found: " + filePath);
 
-            return await createFile(filePath, null);
+            return await CreateFileAsync(filePath, null);
         }
 
-        private async Task<Guid> createFile(string filePath, Guid? folderId)
+        private async Task<Guid> CreateFileAsync(string filePath, Guid? folderId)
         {
             using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -71,13 +71,11 @@ namespace Application
             var buffer = new byte[chunkSize];
             int providerPointer = 0;
 
-            (Guid fileId, int chunkIndex, long totalBytes, Models.File file) = await addFile(filePath, folderId);
+            (Guid fileId, Models.File file) = await AddFileMetadataAsync(filePath, folderId);
 
-
-            var result = await chunkProcesses(fileStream, hasher, buffer, providerPointer, fileId, chunkIndex, chunkSize, totalChunkToSave: 50);
-            providerPointer = result.providerPointer;
-            chunkIndex = result.chunkIndex;
+            var result = await ProcessChunksAsync(fileStream, hasher, buffer, providerPointer, fileId, chunkSize);
             long totalRead = result.totalBytes;
+            int chunkIndex = result.chunkIndex;
 
             var fullHash = Convert.ToHexString(hasher.GetHashAndReset());
 
@@ -91,17 +89,17 @@ namespace Application
             return fileId;
         }
 
-        private async Task<(int providerPointer, int chunkIndex, long totalBytes)> chunkProcesses(
+        private async Task<(int providerPointer, int chunkIndex, long totalBytes)> ProcessChunksAsync(
             FileStream fileStream,
             IncrementalHash hasher,
             byte[] buffer,
             int providerPointer,
             Guid fileId,
-            int chunkIndex,
             int chunkSize,
             int totalChunkToSave = 50)
         {
             long totalBytes = 0;
+            int chunkIndex = 0;
             int sinceLastSave = 0;
 
             while (true)
@@ -109,13 +107,11 @@ namespace Application
                 int read = await fileStream.ReadAsync(buffer.AsMemory(0, chunkSize));
                 if (read <= 0) break;
 
-                var slice = new byte[read];
-                Buffer.BlockCopy(buffer, 0, slice, 0, read);
-
+                var slice = buffer.AsSpan(0, read).ToArray();
                 var chunkHash = Convert.ToHexString(SHA256.HashData(slice));
 
                 var provider = _providers[providerPointer];
-                providerPointer = (providerPointer + 1) % _providers.Count; // Todo
+                providerPointer = (providerPointer + 1) % _providers.Count;
 
                 var providerKey = $"{fileId}/{chunkIndex}";
                 await provider.AddChunkAsync(fileId.ToString(), chunkIndex, slice);
@@ -152,7 +148,7 @@ namespace Application
             return (providerPointer, chunkIndex, totalBytes);
         }
 
-        private async Task<(Guid fileId, int chunkIndex, long totalBytes, Models.File file)> addFile(string filePath, Guid? folderId)
+        private async Task<(Guid fileId, Models.File file)> AddFileMetadataAsync(string filePath, Guid? folderId)
         {
             var fileId = Guid.NewGuid();
             var fileName = Path.GetFileName(filePath);
@@ -163,14 +159,14 @@ namespace Application
                 FileName = fileName,
                 Size = 0,
                 ChunkCount = 0,
-                FolderId = folderId,           // <-- nullable destek
+                FolderId = folderId,
                 UpdateDate = DateTime.UtcNow
             };
 
             await _metadataContract.UpsertFileAsync(file);
             await _metadataContract.SaveChanges();
 
-            return (fileId, 0, 0, file);
+            return (fileId, file);
         }
 
         public async Task DownloadAsync(Guid fileId, string outputPath)
@@ -188,13 +184,12 @@ namespace Application
             using var outStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None);
             using var fullHasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
-
             foreach (var chunk in chunks)
             {
                 var provider = _providers.FirstOrDefault(p => p.Name == chunk.Provider) ??
                     throw new FileProcessorException(ErrorCodes.ProviderNotFound, "Provider not found: " + chunk.Provider);
 
-                var data = await provider.GetChunkAsync(fileId.ToString() ,chunk.Index);
+                var data = await provider.GetChunkAsync(fileId.ToString(), chunk.Index);
 
                 var currentChunkHash = Convert.ToHexString(SHA256.HashData(data));
                 if (!currentChunkHash.Equals(chunk.HashSha256, StringComparison.OrdinalIgnoreCase))

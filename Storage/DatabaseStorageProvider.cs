@@ -1,15 +1,14 @@
 ﻿using Metadata;
 using Microsoft.EntityFrameworkCore;
-using Models;
 
 namespace Storage
 {
     public class DatabaseStorageProvider : IStorageProvider
     {
         public string Name { get; set; }
-        private readonly FileProcessDbContext _context;
+        private readonly DatabaseStorageDbContext _context;
 
-        public DatabaseStorageProvider(string name, FileProcessDbContext context)
+        public DatabaseStorageProvider(string name, DatabaseStorageDbContext context)
         {
             Name = name;
             _context = context;
@@ -17,7 +16,7 @@ namespace Storage
 
         public async Task AddChunkAsync(string fileId, int chunkOrder, byte[] data)
         {
-            var existingChunk = await _context.DBStorages
+            var existingChunk = await _context.Storages
                 .FirstOrDefaultAsync(c => c.FileId == fileId && c.ChunkOrder == chunkOrder);
 
             if (existingChunk != null)
@@ -26,7 +25,7 @@ namespace Storage
             }
             else
             {
-                var newChunk = new DBStorage
+                var newChunk = new Models.Storage
                 {
                     Id = new Guid(),
                     FileId = fileId,
@@ -35,7 +34,7 @@ namespace Storage
                     CreateDate = DateTime.UtcNow
 
                 };
-                _context.DBStorages.Add(newChunk);
+                _context.Storages.Add(newChunk);
             }
 
             await _context.SaveChangesAsync();
@@ -43,7 +42,7 @@ namespace Storage
 
         public async Task<byte[]> GetChunkAsync(string fileId, int chunkOrder)
         {
-            var chunk = await _context.DBStorages
+            var chunk = await _context.Storages
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.FileId == fileId && c.ChunkOrder == chunkOrder);
 
@@ -52,7 +51,7 @@ namespace Storage
 
         public async Task DeleteFileChunksAsync(string fileId)
         {
-            await _context.DBStorages
+            await _context.Storages
                 .Where(c => c.FileId == fileId)
                 .ExecuteDeleteAsync();   
         }

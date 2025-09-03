@@ -10,7 +10,6 @@ namespace Metadata
         public DbSet<Models.File> Files { get; set; }
         public DbSet<Chunk> Chunks { get; set; }
         public DbSet<Folder> Folders { get; set; }
-        public DbSet<DBStorage> DBStorages { get; set; }
 
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
@@ -45,15 +44,6 @@ namespace Metadata
                 e.HasIndex(f => f.CreateDate);
             });
 
-
-            modelBuilder.Entity<DBStorage>(e =>
-            {
-                e.HasKey(f => f.Id);
-                e.Property(f => f.FileId).IsRequired();
-                e.Property(f => f.ChunkData).IsRequired();
-                e.Property(f => f.ChunkOrder).IsRequired();
-                e.HasIndex(f => f.CreateDate);
-            });
 
         }
     }

@@ -2,7 +2,7 @@
 {
     public static class ChunkSizer
     {
-        private const int FixedLargeChunkBytes = 100 * 1024 * 1024; // 100 MB
+        private const int FixedLargeChunkBytes = 100 * 1024 * 1024; 
 
         public static int GetChunkSize(long fileSizeBytes)
         {
