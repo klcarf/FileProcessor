@@ -40,8 +40,6 @@ namespace Storage
         public Task DeleteFileChunksAsync(string fileId)
         {
             var fileDirectory = Path.Combine(_root, fileId);
-
-            // Eğer dosyaya ait klasör varsa, içindeki tüm chunk'larla birlikte sil.
             if (Directory.Exists(fileDirectory))
             {
                 Directory.Delete(fileDirectory, recursive: true);

@@ -2,27 +2,25 @@
 {
     public static class ChunkSizer
     {
-        private const int FixedLargeChunkBytes = 100 * 1024 * 1024; 
+        private const int MinChunkSizeBytes = 1 * 1024 * 1024; // 1 MB
+        private const int MaxChunkSizeBytes = 16 * 1024 * 1024; // 16 MB
+
+        private const double BaseMultiplier = 524288; // 512 KB
 
         public static int GetChunkSize(long fileSizeBytes)
         {
             if (fileSizeBytes <= 0)
-                return 1 * 1024 * 1024; 
+            {
+                return MinChunkSizeBytes;
+            }
+            // chunk size ı file boyutu arttıkça 16MB a yaklaştırıyoruz.
+            double scale = Math.Log(fileSizeBytes, 10);
+            double calculatedSize = BaseMultiplier * scale;
 
-            const long MB = 1024L * 1024L;
+            // sınr kontrolü
+            int finalSize = (int)Math.Clamp(calculatedSize, MinChunkSizeBytes, MaxChunkSizeBytes);
 
-            if (fileSizeBytes <= 100 * MB)
-            {
-                return (int)Math.Ceiling(fileSizeBytes / 5.0);
-            }
-            else if (fileSizeBytes <= 1000 * MB)
-            {
-                return (int)Math.Ceiling(fileSizeBytes / 10.0);
-            }
-            else
-            {
-                return FixedLargeChunkBytes;
-            }
+            return finalSize;
         }
     }
 }

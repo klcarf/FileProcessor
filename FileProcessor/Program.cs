@@ -1,5 +1,5 @@
 ﻿using Application;
-using Application.Interfaces; // Clean Architecture'a geçiş yapıyorsanız bu using'i kullanın.
+using Application.Interfaces;
 using log4net;
 using log4net.Config;
 using Metadata;
