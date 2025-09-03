@@ -1,4 +1,4 @@
-﻿namespace FileProcessorUtil
+﻿namespace Application
 {
     public static class ChunkSizer
     {

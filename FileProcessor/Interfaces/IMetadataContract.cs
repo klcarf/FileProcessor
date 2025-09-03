@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Models;
 
-namespace Metadata.ServiceContracts
+namespace Application.Interfaces
 {
     public interface IMetadataContract
     {

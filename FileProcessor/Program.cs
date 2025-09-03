@@ -1,14 +1,13 @@
 ﻿
+using Application;
+using Application.Interfaces;
 using log4net;
 using log4net.Config;
 using Metadata;
-using Metadata.ServiceContracts;
-using Metadata.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Services;
 using Services.Exceptions;
 using Spectre.Console;
 using Storage;
@@ -43,7 +42,7 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 var providers = new List<IStorageProvider>
 {
     new LocalStorageProvider("A", Path.Combine(AppContext.BaseDirectory, "Storage","ProviderA")),
-    new LocalStorageProvider("B", Path.Combine(AppContext.BaseDirectory, "Storage","ProviderB")),
+    new DatabaseStorageProvider("B",dataSource),
 };
 
 

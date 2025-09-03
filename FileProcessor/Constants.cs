@@ -1,4 +1,4 @@
-namespace FileProcessor
+namespace Application
 {
     public static class Messages
     {

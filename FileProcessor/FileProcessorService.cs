@@ -1,12 +1,11 @@
-﻿using FileProcessorUtil;
-using Models;
+﻿using Models;
 using Services.Exceptions;
 using Storage;
 using System.Security.Cryptography;
 using log4net;
-using Metadata.ServiceContracts;
+using Application.Interfaces;
 
-namespace Services
+namespace Application
 {
     public class FileProcessorService
     {

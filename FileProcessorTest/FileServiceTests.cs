@@ -1,9 +1,4 @@
-﻿using Metadata.ServiceContracts;
-using Models;
-using Moq;
-using Services;
-using Services.Exceptions;
-using Storage;
+﻿using Moq;
 
 namespace FileProcessorTest
 {

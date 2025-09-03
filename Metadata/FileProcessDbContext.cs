@@ -51,6 +51,7 @@ namespace Metadata
                 e.HasKey(f => f.Id);
                 e.Property(f => f.FileId).IsRequired();
                 e.Property(f => f.ChunkData).IsRequired();
+                e.Property(f => f.ChunkOrder).IsRequired();
                 e.HasIndex(f => f.CreateDate);
             });
 

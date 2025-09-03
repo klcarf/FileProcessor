@@ -28,9 +28,12 @@ namespace Storage
             {
                 var newChunk = new DBStorage
                 {
+                    Id = new Guid(),
                     FileId = fileId,
                     ChunkOrder = chunkOrder,
-                    ChunkData = data
+                    ChunkData = data,
+                    CreateDate = DateTime.UtcNow
+
                 };
                 _context.DBStorages.Add(newChunk);
             }
