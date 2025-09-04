@@ -8,7 +8,8 @@ Bu proje, büyük dosyaları ve klasörleri verimli bir şekilde işlemek, parç
   - C:\Users\Test\Masaüstü\Test           - Folder
   - C:\Users\Test\Masaüstü\Test\test.pdf  - File
 - Dinamik Parçalama (Chunking): Dosyaları, boyutlarına göre logaritmik olarak hesaplanan yönetilebilir parçalara böler.
-- Dağıtık Depolama: Oluşturulan parçaları, tanımlanmış farklı depolama sağlayıcıları (IStorageProvider) arasında dağıtır. Proje, LocalStorageProvider (yerel disk) ve DatabaseStorageProvider (veritabanı) implementasyonlarını içerir.
+- Dağıtık Depolama: Oluşturulan parçaları, tanımlanmış farklı depolama sağlayıcıları (IStorageProvider) arasında dağıtır.
+- Proje, LocalStorageProvider (yerel disk:..FileProcessor\bin\Debug\net8.0\Storage) ve DatabaseStorageProvider (veritabanı) implementasyonlarını içerir.
 - Veri Bütünlüğü: Yükleme sırasında her bir parça ve dosyanın tamamı için SHA256 hash'leri oluşturulur. İndirme sırasında bu hash'ler doğrulanarak verinin bozulmadığından emin olunur.
 - Metadata Yönetimi: Tüm dosya (File), klasör (Folder) ve parça (Chunk) bilgileri, ilişkisel bir veritabanında (PostgreSQL) saklanır.
 - Etkileşimli Konsol Arayüzü: Spectre.Console kütüphanesi ile geliştirilmiş, kullanıcı dostu bir komut satırı arayüzü sunar.
@@ -19,6 +20,7 @@ Bu proje, büyük dosyaları ve klasörleri verimli bir şekilde işlemek, parç
 - PostgreSQL: Veritabanı.
 - Docker: Veritabanı ortamını kolayca kurmak için.
 - log4net: Loglama altyapısı.
+  ..\FileProcessor\bin\Debug\net8.0\Logs
 - Spectre.Console: Konsol arayüzü oluşturmak için.
 
 
