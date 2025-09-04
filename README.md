@@ -16,7 +16,7 @@ Bu proje, büyük dosyaları ve klasörleri verimli bir şekilde işlemek, parç
 🛠️ Kullanılan Teknolojiler
 - .NET 8
 - Entity Framework Core: Veritabanı işlemleri için ORM.
-- PostgreSQL: Veritabanı motoru.
+- PostgreSQL: Veritabanı.
 - Docker: Veritabanı ortamını kolayca kurmak için.
 - log4net: Loglama altyapısı.
 - Spectre.Console: Konsol arayüzü oluşturmak için.
