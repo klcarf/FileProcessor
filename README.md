@@ -5,8 +5,8 @@ Bu proje, büyük dosyaları ve klasörleri verimli bir şekilde işlemek, parç
 
 🚀 Temel Özellikler
 - Dosya ve Klasör Yükleme: Tek bir dosyayı veya bir klasörün içindeki tüm dosyaları yükler.
-  - C:\Users\Test\Masaüstü\Test           - Folder
-  - C:\Users\Test\Masaüstü\Test\test.pdf  - File
+  - C:\Users\Test\Masaüstü\Test           
+  - C:\Users\Test\Masaüstü\Test\test.pdf  
 - Dinamik Parçalama (Chunking): Dosyaları, boyutlarına göre logaritmik olarak hesaplanan yönetilebilir parçalara böler.
 - Dağıtık Depolama: Oluşturulan parçaları, tanımlanmış farklı depolama sağlayıcıları (IStorageProvider) arasında dağıtır.
 - Proje, LocalStorageProvider (yerel disk:..FileProcessor\bin\Debug\net8.0\Storage) ve DatabaseStorageProvider (veritabanı) implementasyonlarını içerir.
